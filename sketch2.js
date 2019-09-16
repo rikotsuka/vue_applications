@@ -1,20 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-   <script src="sketch.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.js"></script>
+let img;
+let smallPoint, largePoint;
 
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-<style type="text/css">
-    .paintArea {
-        margin: 100px 100px;
-        width: 300px;
-        height: 300px;
-        border: 1px solid #AAA;
-    }
-</style>
-</head>
-<body>
+function preload() {
+  img = loadImage('assets/moonwalk.jpg');
+}
 
-</body>
-</html>
+function setup() {
+  createCanvas(720, 400);
+  smallPoint = 4;
+  largePoint = 40;
+  imageMode(CENTER);
+  noStroke();
+  background(255);
+  img.loadPixels();
+}
+
+function draw() {
+  let pointillize = map(mouseX, 0, width, smallPoint, largePoint);
+  let x = floor(random(img.width));
+  let y = floor(random(img.height));
+  let pix = img.get(x, y);
+  fill(pix, 128);
+  ellipse(x, y, pointillize, pointillize);
+}
