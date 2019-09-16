@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@3.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+<style type="text/css">
+    .paintArea {
+        margin: 100px 100px;
+        width: 300px;
+        height: 300px;
+        border: 1px solid #AAA;
+    }
+</style>
+</head>
+<body>
+
+<section id="app">
+    <div class="paintArea"
+        @mousedown="onMousedown"
+        @mouseup="onMouseup"
+        @mousemove="onMousemove"
+        @click="onClick"
+    ></div>
+</section>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script type="text/javascript">
+
+    class Point {
+        constructor(x = 0, y = 0) {
+            this.x = x
+            this.y = y
+        }
+
+        static createFromMouseEvent({offsetX, offsetY}) {
+            return new Point(Math.round(offsetX/10), Math.round(offsetY/10))
+        }
+
+        isSameAs({x, y}) {
+            return this.x === x && this.y === y
+        }
+    }
+
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                pointStack: [],
+                isPainting: false,
+            }
+        },
+        computed: {
+            prePoint() {
+                return this.pointStack.length ? this.pointStack[this.pointStack.length - 1] : null
+            },
+        },
+        methods: {
+            ///////////////////////////////
+            // monuse event handlers
+            ///////////////////////////////
+            onClick(event) {
+                const point = Point.createFromMouseEvent(event)
+                this.drawToConsole(point)
+            },
+            onMousedown(event) {
+                this.isPainting = true
+            },
+            onMouseup(event) {
+                this.isPainting = false
+            },
+            onMousemove(event) {
+                if (!this.isPainting) {
+                    return
+                }
+
+                const point = Point.createFromMouseEvent(event)
+                this.drawToConsole(point)
+            },
+            ///////////////////////////////
+            // canvas console
+            ///////////////////////////////
+            drawToConsole(point) {
+                if (this.prePoint !== null && this.prePoint.isSameAs(point)) {
+                    return
+                }
+
+                console.clear()
+
+                this.pointStack.push(point)
+
+                const canvasIndices = [...Array(30).keys()]
+
+                const consoleCanvasString = canvasIndices.reduce((carry, indexY) =>
+                    canvasIndices.reduce((line, indexX) => {
+                        const targetPoint = new Point(indexX, indexY)
+                        const isPaintedPoint = this.pointStack.some(p => p.isSameAs(targetPoint))
+                        const paint = isPaintedPoint ? '● ' : '　 '
+                        return `${line}${paint}`
+                    }, carry) + '\n'
+                , '')
+
+                console.log(consoleCanvasString)
+            }
+        },
+    })
+</script>
+
+</body>
+</html>
+以下、ポイントの解説です。
+
+イベントリスナーの設定　
+このようにマウス操作に関するイベントに対して、シンプルに呼び出すメソッドを記述できます。
+
+<section id="app">
+<div class="paintArea"
+    @mousedown="onMousedown"
+    @mouseup="onMouseup"
+    @mousemove="onMousemove"
+    @click="onClick"
+></div>
+</section
